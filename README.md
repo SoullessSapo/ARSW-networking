@@ -169,7 +169,7 @@ Servidor HTTP escuchando en puerto 35000
 **Prueba en el navegador:**
 - [http://localhost:35000/](http://localhost:35000/) — carga `index.html`
 - [http://localhost:35000/main.js](http://localhost:35000/main.js)
-- [http://localhost:35000/logo.png](http://localhost:35000/logo.png)
+- [http://localhost:35000/KaydenFachero.png](http://localhost:35000/KaydenFachero.png)
 - [http://localhost:35000/noexiste.html](http://localhost:35000/noexiste.html) — responde "404 Not Found"
 
 ---
@@ -188,9 +188,9 @@ Servidor HTTP escuchando en puerto 35000
 ## Notas importantes
 
 - Los puertos por defecto son:
-   - SquareServer/SquareClient: **35001**
-   - FuncServer/FuncClient: **35002**
-   - MultiFileHttpServer: **35000**
+  - SquareServer/SquareClient: **35001**
+  - FuncServer/FuncClient: **35002**
+  - MultiFileHttpServer: **35000**
 - Ejecuta primero el servidor antes del cliente para cada ejercicio.
 - Verifica que tus archivos están en la ruta correcta.
 - Usa una terminal desde la raíz del proyecto para compilar y ejecutar.
