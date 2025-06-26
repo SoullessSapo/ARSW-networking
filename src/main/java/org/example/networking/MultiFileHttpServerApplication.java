@@ -1,4 +1,4 @@
-package org.example.multifilehttpserver;
+package org.example.networking;
 
 import java.io.*;
 import java.net.*;

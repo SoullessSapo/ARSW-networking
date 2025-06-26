@@ -1,147 +1,199 @@
+# Ejercicios de Networking en Java
 
-# Ejercicio 4.5.1 - Servidor Web en Java (MultiFileHttpServer)
-
-Este ejercicio consiste en la implementación de un servidor web sencillo en Java capaz de recibir múltiples solicitudes de manera secuencial (no concurrente), y de servir archivos estáticos de diferentes tipos como páginas HTML, archivos JavaScript e imágenes (PNG, JPEG, GIF).
-
-## Objetivo
-
-El servidor debe ser capaz de:
-- Escuchar peticiones HTTP en un puerto configurable (por defecto, `35000`).
-- Responder a las solicitudes enviando archivos estáticos (HTML, JS, imágenes) ubicados en un directorio específico.
-- Enviar la cabecera HTTP con el **Content-Type** apropiado según la extensión del archivo solicitado.
-- Responder con un mensaje de error `404 Not Found` si el recurso no existe.
+Este proyecto contiene varios ejercicios prácticos sobre programación de redes en Java. Cada archivo aborda un concepto distinto: manejo de URLs, descarga de páginas, sockets TCP, funciones matemáticas cliente-servidor y servidor web de archivos estáticos.
 
 ## Estructura recomendada
 
 ```
 src/
-├── main/
-│   ├── java/
-│   │   └── org/
-│   │       └── example/
-│   │           └── networking/
-│   │               └── MultiFileHttpServer.java
-│   └── resources/
-│       └── web/
-│           ├── index.html
-│           ├── main.js
-│           └── logo.png
-```
-
-## ¿Cómo funciona?
-
-- El servidor escucha en el puerto 35000.
-- Al recibir una solicitud HTTP (por ejemplo, `GET /index.html`), busca el archivo solicitado en la carpeta `src/main/resources/web`.
-- Detecta el tipo MIME del archivo y lo retorna correctamente al navegador o cliente.
-- Si el archivo no existe, responde con un error `404 Not Found`.
-
-## Ejecución
-
-1. **Coloca los archivos estáticos** (HTML, JS, imágenes) en la carpeta:  
-   `src/main/resources/web/`
-
-2. **Ejecuta la clase** `MultiFileHttpServer` desde tu IDE o consola.
-
-3. **Accede desde el navegador**:
-    - [http://localhost:35000/](http://localhost:35000/)
-    - [http://localhost:35000/main.js](http://localhost:35000/main.js)
-    - [http://localhost:35000/logo.png](http://localhost:35000/kaydenFachero.png)
-
-## Ejemplo de archivos estáticos
-
-`index.html`
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Servidor Web Java</title>
-    <script src="main.js"></script>
-</head>
-<body>
-    <h1>Hola desde Java Web Server</h1>
-    <img src="logo.png" alt="Logo" width="200">
-</body>
-</html>
-```
-
-`main.js`
-```js
-console.log("¡JS cargado correctamente desde el servidor Java!");
-```
-
-Coloca cualquier imagen `.png` como `logo.png`.
-
-## Código del servidor
-
-La clase principal es:
-
-```java
-package org.example.networking;
-
-import java.io.*;
-import java.net.*;
-import java.nio.file.*;
-
-public class MultiFileHttpServer {
-   public static void main(String[] args) throws IOException {
-      int port = 35000;
-      ServerSocket serverSocket = new ServerSocket(port);
-      System.out.println("Servidor HTTP escuchando en puerto " + port);
-
-      while (true) {
-         Socket clientSocket = serverSocket.accept();
-         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-         OutputStream out = clientSocket.getOutputStream();
-
-         String requestLine = in.readLine();
-         if (requestLine == null) continue;
-         System.out.println("Request: " + requestLine);
-         String[] parts = requestLine.split(" ");
-         if (parts.length < 2) continue;
-         String path = parts[1].equals("/") ? "/web/index.html" : parts[1];
-
-         String basePath = "src/main/resources/web";
-         File file = new File(basePath + path);
-         String contentType = guessContentType(path);
-
-         if (file.exists() && !file.isDirectory()) {
-            byte[] content = Files.readAllBytes(file.toPath());
-            out.write(("HTTP/1.1 200 OK
-                    Content - Type:" + contentType + "
-
-            ").getBytes());
-            out.write(content);
-         } else {
-            String notFound = "<html><body><h1>404 Not Found</h1></body></html>";
-            out.write(("HTTP/1.1 404 Not Found
-                    Content - Type:text / html
-
-            ").getBytes());
-            out.write(notFound.getBytes());
-         }
-         out.flush();
-         clientSocket.close();
-      }
-   }
-
-   private static String guessContentType(String path) {
-      if (path.endsWith(".html")) return "text/html";
-      if (path.endsWith(".js")) return "application/javascript";
-      if (path.endsWith(".png")) return "image/png";
-      if (path.endsWith(".jpg") || path.endsWith(".jpeg")) return "image/jpeg";
-      if (path.endsWith(".gif")) return "image/gif";
-      return "application/octet-stream";
-   }
-}
+└── main/
+    ├── java/
+    │   └── org/
+    │       └── example/
+    │           └── networking/
+    │               ├── URLProperties.java
+    │               ├── SimpleBrowser.java
+    │               ├── SquareServer.java
+    │               ├── SquareClient.java
+    │               ├── FuncServer.java
+    │               ├── FuncClient.java
+    │               └── MultiFileHttpServer.java
+    └── resources/
+        └── web/
+            ├── index.html
+            ├── main.js
+            └── logo.png
 ```
 
 ---
 
-## Observaciones
+## 1. URLProperties.java
 
-- El servidor **no es concurrente** (atiende una petición a la vez).
-- Para producción real se recomienda usar servidores web profesionales.
-- Este ejercicio es únicamente educativo y cumple con el requerimiento del taller de networking.
+**¿Qué hace?**  
+Imprime en consola las distintas propiedades de una URL.
+
+**¿Cómo se usa?**  
+Compila y ejecuta:
+```sh
+java org.example.networking.URLProperties
+```
+**Ejemplo de salida:**
+```
+Protocol: http
+Authority: www.google.com:80
+Host: www.google.com
+Port: 80
+Path: /search
+Query: q=java
+File: /search?q=java
+Ref: top
+```
+
+---
+
+## 2. SimpleBrowser.java
+
+**¿Qué hace?**  
+Pide al usuario una URL, descarga su contenido y lo guarda en el archivo `resultado.html`.
+
+**¿Cómo se usa?**  
+Ejecuta el programa y escribe una URL cuando lo pida:
+```sh
+java org.example.networking.SimpleBrowser
+URL: https://www.example.com
+```
+**Ejemplo de funcionamiento:**
+- El archivo `resultado.html` contendrá la página descargada.
+- Puedes abrirlo con tu navegador.
+
+---
+
+## 3. SquareServer.java
+
+**¿Qué hace?**  
+Servidor TCP que recibe un número y responde su cuadrado.
+
+**¿Cómo se usa?**  
+Ejecuta el servidor:
+```sh
+java org.example.networking.SquareServer
+```
+Verás:
+```
+Servidor listo en puerto 35001...
+```
+
+---
+
+## 4. SquareClient.java
+
+**¿Qué hace?**  
+Cliente TCP que se conecta a SquareServer, manda un número y recibe su cuadrado.
+
+**¿Cómo se usa?**  
+Ejecuta el cliente:
+```sh
+java org.example.networking.SquareClient
+```
+Ejemplo en consola:
+```
+Ingrese un número para obtener el cuadrado:
+5
+Respuesta: 25
+10
+Respuesta: 100
+```
+
+---
+
+## 5. FuncServer.java
+
+**¿Qué hace?**  
+Servidor TCP que calcula seno, coseno o tangente según el comando recibido. Cambia el modo con `fun:sin`, `fun:cos` o `fun:tan`.
+
+**¿Cómo se usa?**  
+Ejecuta el servidor:
+```sh
+java org.example.networking.FuncServer
+```
+Verás:
+```
+Servidor Func listo en puerto 35002...
+```
+
+---
+
+## 6. FuncClient.java
+
+**¿Qué hace?**  
+Cliente TCP para FuncServer. Permite cambiar la función matemática o enviar números.
+
+**¿Cómo se usa?**  
+Ejecuta el cliente:
+```sh
+java org.example.networking.FuncClient
+```
+**Ejemplo de sesión:**
+```
+Conectado al servidor FuncServer. Ingrese números o comandos (fun:sin, fun:cos, fun:tan):
+0
+Respuesta: Resultado: 1.0
+fun:sin
+Respuesta: Modo cambiado a: sin
+1.5708
+Respuesta: Resultado: 0.9999999999932537
+fun:tan
+Respuesta: Modo cambiado a: tan
+1
+Respuesta: Resultado: 1.5574077246549023
+hola
+Respuesta: Envíe un número válido
+```
+
+---
+
+## 7. MultiFileHttpServer.java
+
+**¿Qué hace?**  
+Servidor HTTP básico que sirve archivos estáticos (HTML, JS, imágenes) desde `src/main/resources/web/`.
+
+**¿Cómo se usa?**  
+Ejecuta el servidor:
+```sh
+java org.example.networking.MultiFileHttpServer
+```
+Verás:
+```
+Servidor HTTP escuchando en puerto 35000
+```
+**Prueba en el navegador:**
+- [http://localhost:35000/](http://localhost:35000/) — carga `index.html`
+- [http://localhost:35000/main.js](http://localhost:35000/main.js)
+- [http://localhost:35000/logo.png](http://localhost:35000/logo.png)
+- [http://localhost:35000/noexiste.html](http://localhost:35000/noexiste.html) — responde "404 Not Found"
+
+---
+
+## Archivos Web de ejemplo
+
+- **index.html**  
+  Página de inicio con un script JS y una imagen.
+- **main.js**  
+  Código JS que imprime un mensaje en consola.
+- **logo.png**  
+  Cualquier imagen PNG de tu preferencia.
+
+---
+
+## Notas importantes
+
+- Los puertos por defecto son:
+   - SquareServer/SquareClient: **35001**
+   - FuncServer/FuncClient: **35002**
+   - MultiFileHttpServer: **35000**
+- Ejecuta primero el servidor antes del cliente para cada ejercicio.
+- Verifica que tus archivos están en la ruta correcta.
+- Usa una terminal desde la raíz del proyecto para compilar y ejecutar.
 
 ---
 
