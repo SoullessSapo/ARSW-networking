@@ -45,7 +45,7 @@ src/
 3. **Accede desde el navegador**:
     - [http://localhost:35000/](http://localhost:35000/)
     - [http://localhost:35000/main.js](http://localhost:35000/main.js)
-    - [http://localhost:35000/logo.png](http://localhost:35000/logo.png)
+    - [http://localhost:35000/logo.png](http://localhost:35000/kaydenFachero.png)
 
 ## Ejemplo de archivos estáticos
 
