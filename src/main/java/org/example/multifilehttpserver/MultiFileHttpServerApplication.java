@@ -20,7 +20,7 @@ public class MultiFileHttpServerApplication {
             System.out.println("Request: " + requestLine);
             String[] parts = requestLine.split(" ");
             if (parts.length < 2) continue;
-            String path = parts[1].equals("/") ? "/index.html" : parts[1];
+            String path = parts[1].equals("/") ? "/web/index.html" : parts[1];
 
             // Ruta real de los archivos en resources/web
             String basePath = "src/main/resources/web";
